@@ -1,99 +1,107 @@
-const textArea = document.getElementById('textarea')
-const botonEncriptar = document.querySelector(".buttonEncriptar");
-const botonDesencriptar = document.querySelector(".buttonDesencriptar");
-let imprimirMensajeEncriptado = document.getElementById("textAreaCaja3")
+const textoIngresado = document.getElementById('textoIngresado')
+const textoEjecutado = document.getElementById('textoEjecutado')
+const botonEncriptar = document.getElementById("buttonEncriptar");
+const botonDesencriptar = document.getElementById("buttonDesencriptar");
+const botonCopiar = document.getElementById("botonCopiar")
+const contenedorDeImagen = document.getElementById("contenedorDeImagen")
+const contenedorEjecutado = document.getElementById("contenedorEjecutado")
+const textoRestricciones = document.getElementById("textoRestricciones");
 
-botonEncriptar.onclick = verificacion;
+showHidden()
+textoIngresado.focus();    /*Posiciona puntero */
 
-function verificacion(evento){
+const matrizCodigo = [["e", "enter"], ["i", "imes"], ["a", "ai"], ["o", "ober"], ["u", "ufat"]];
 
-    let texto = textArea.value;
-    let textMinusculas = texto.toLowerCase();
+botonEncriptar.addEventListener("click", versionEncriptada);
+botonDesencriptar.addEventListener("click",versionDesencriptada);  
+botonCopiar.addEventListener("click", ActivarBotonCopiar);  
 
-    if(texto === textMinusculas && /^[a-zA-Z\s]*$/.test(texto) && /^[a-zA-Z\s]*$/.test(texto)){
-        versionEncriptada(texto);            
-    }else {
-    alert("El texto no esta completamente en minusculas. Intente de nuevo")
-        location.reload();
-   }   
+function verificacion(){
+    const texto = textoIngresado.value.split("");  /*Divide una cadena en subcadenas de caracteres individuales */
+    const cadena = texto.find((caracter) => (caracter.charCodeAt() >= 65 && caracter.charCodeAt() <= 90) || (caracter.charCodeAt() >= 192 && caracter.charCodeAt() <= 255));
+    if (cadena) return false
+    return true
 }
 
-function versionEncriptada(texto){
+function versionEncriptada(){
+        
+    if(verificacion()){
+        
+        let texto = textoIngresado.value;
+
+        for (let i = 0; i < matrizCodigo.length; i++) {
+            if(texto.includes(matrizCodigo[i][0])){
+                texto = texto.replaceAll(matrizCodigo[i][0], matrizCodigo[i][1])
+            }        
+        }  
+        showHidden();
+        imprimirTexto(texto);
+        limpiarTexto();
+    } else {
+        textoEquivocado();
+    }
+}
+
+function showHidden() {
+    if (textoIngresado.value === "") {
+        contenedorEjecutado.style.display = "none"
+        contenedorDeImagen.style.display = "block"
+    } else {
+        contenedorEjecutado.style.display = "flex"
+        contenedorDeImagen.style.display = "none"
+    }
+}
+
+function imprimirTexto(texto) {
+    textoEjecutado.innerHTML = texto;
+   
+}
+
+function limpiarTexto(){
+    textoIngresado.value = "";
+    textoIngresado.focus(); 
+}
+
+function textoEquivocado() {
+
+    const colorNuevo = textoRestricciones.style.color;
+    const tamañoNuevo = textoRestricciones.style.fontSize;
+
+    textoRestricciones.style.color = "red";    
+    textoRestricciones.style.fontSize = "20px";
+
+    setTimeout(function() {
+        textoRestricciones.style.color = colorNuevo;
+        textoRestricciones.style.fontSize = tamañoNuevo;
+      }, 3000);
     
-    let cadena = "";
-
-    for (let i =0; i< texto.length; i++){
-        switch(texto[i]){
-            case "e":
-                frase = "enter";
-                break;
-            case "i":
-                frase = "imes";
-                break;
-            case "a":
-                frase = "ai";
-                break;
-            case "o":
-                frase = "ober";
-                break;      
-            case "u":
-                frase = "ufat";
-                break; 
-
-            default:
-                frase =texto[i];
-                break;
-        }
-        cadena = cadena + frase;
-    }  
-    mostrarMensajeEncriptado(cadena);       
+    limpiarTexto();    
 }
 
-function mostrarMensajeEncriptado(cadena){
-    document.getElementById("textAreaCaja3").style.backgroundImage = "none";
-    document.querySelector(".texto1").style.display = "none";
-    document.querySelector(".texto2").style.display = "none";
-    imprimirMensajeEncriptado.innerHTML = cadena;    
-    agregarBotonCopiar(cadena);  
-    textarea.value ="";   
-    botonDesencriptar.style.pointerEvents = 'auto';
-    botonEncriptar.style.pointerEvents = 'none';
-}
-
-function agregarBotonCopiar(cadena){
-    const botonCopiar = document.createElement('button');
-    botonCopiar.innerText = 'Copiar';
-
-    botonCopiar.addEventListener('click', function() {       
-        const areaDeTextoTemp = document.createElement('textarea');
-        areaDeTextoTemp.value = cadena;
-        document.body.appendChild(areaDeTextoTemp);
-        areaDeTextoTemp.select();
-        document.execCommand('copy');
-        document.body.removeChild(areaDeTextoTemp);      
-        alert('Texto copiado al portapapeles, por favor pegue el texto en el cuadro de texto y posteriormente presione la tecla desencriptar');
-    });
-    const contenedor = document.querySelector('.caja3');
-    contenedor.appendChild(botonCopiar);    
-}
-
-botonDesencriptar.onclick = versionDesencriptada;
 
 function versionDesencriptada(){
-   
-    let texto = textArea.value; 
-    let matrizCodigo = [["enter", "e"], ["imes", "i"], ["ai", "a"], ["ober", "o"], ["ufat", "u"]];
-
-    for (let i = 0; i < matrizCodigo.length; i++) {
         
-        if(texto.includes(matrizCodigo[i][0])){
-            texto = texto.replaceAll(matrizCodigo[i][0], matrizCodigo[i][1])
-        }        
-    }    
-    imprimirMensajeEncriptado.innerHTML = texto;
+    if(verificacion()){
+        
+        let texto = textoIngresado.value;
+
+        for (let i = 0; i < matrizCodigo.length; i++) {
+            if(texto.includes(matrizCodigo[i][1])){
+                texto = texto.replaceAll(matrizCodigo[i][1], matrizCodigo[i][0])
+            }        
+        }  
+        showHidden();
+        imprimirTexto(texto);
+        limpiarTexto();
+    } else {
+        textoEquivocado();
+    }
 }
 
-
-
+function ActivarBotonCopiar(){
+    textoEjecutado.select();
+    navigator.clipboard.writeText(textoEjecutado.value);  
+    limpiarTexto();  
+}
 
 
